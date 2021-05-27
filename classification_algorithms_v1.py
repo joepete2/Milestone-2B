@@ -22,7 +22,7 @@ Notes: Different classification algorithms for Milestone 2B
 
 # import tools
 import pandas as pd
-# import numpy as np
+import numpy as np
 from tqdm import tqdm
 
 # import models
@@ -71,6 +71,18 @@ RF_score = 0
 Boost_score = 0
 SV_score = 0
 
+#initialize confusion matrix vectors
+totalPredictionsKNN = []
+totalPredictionsLR = []
+totalPredictionsLDA = []
+totalPredictionsTree = []
+totalPredictionsBag = []
+totalPredictionsRF = []
+totalPredictionsBoost = []
+totalPredictionsSV = []
+totalTest = []
+
+
 
 for i in tqdm(range(N)): # for i in range(0,N):
     
@@ -84,6 +96,8 @@ for i in tqdm(range(N)): # for i in range(0,N):
     KNN_algorithm.fit(X_train, y_train)
     KNN_yhat = KNN_algorithm.predict(X_test)
     k_neighbor_score += accuracy_score(y_test, KNN_yhat)
+    totalPredictionsKNN = np.concatenate((totalPredictionsKNN, KNN_yhat))
+    
     
     
     # Logistic Regression (one versus one or one versus all?)
@@ -91,13 +105,14 @@ for i in tqdm(range(N)): # for i in range(0,N):
     LR_ovo_algorithm.fit(X_train, y_train)
     LR_ovo_yhat = LR_ovo_algorithm.predict(X_test)
     LR_ovo_score += accuracy_score(y_test, LR_ovo_yhat)
-    
+    totalPredictionsLR = np.concatenate((totalPredictionsLR, LR_ovo_yhat))
     
     # Linear Discriminate Analysis
     LDA_algorithm = LinearDiscriminantAnalysis()
     LDA_algorithm.fit(X_train, y_train)
     LDA_yhat = LDA_algorithm.predict(X_test)
     LDA_score += accuracy_score(y_test, LDA_yhat)
+    totalPredictionsLDA = np.concatenate((totalPredictionsLDA, LDA_yhat))
     
     
     """
@@ -114,6 +129,7 @@ for i in tqdm(range(N)): # for i in range(0,N):
     tree_algorithm.fit(X_train, y_train)
     tree_yhat = tree_algorithm.predict(X_test)
     tree_score += accuracy_score(y_test, tree_yhat)
+    totalPredictionsTree = np.concatenate((totalPredictionsTree, tree_yhat))
     
 
     # Bagging
@@ -121,6 +137,7 @@ for i in tqdm(range(N)): # for i in range(0,N):
     Bag_algorithm.fit(X_train, y_train)
     Bag_yhat = Bag_algorithm.predict(X_test)
     Bag_score += accuracy_score(y_test, Bag_yhat)
+    totalPredictionsBag = np.concatenate((totalPredictionsBag, Bag_yhat))
     
     
     # Random Forests
@@ -128,6 +145,7 @@ for i in tqdm(range(N)): # for i in range(0,N):
     RF_algorithm.fit(X_train, y_train)
     RF_yhat = RF_algorithm.predict(X_test)
     RF_score += accuracy_score(y_test, RF_yhat)
+    totalPredictionsRF = np.concatenate((totalPredictionsRF, RF_yhat))
     
     
     # Boosting
@@ -139,6 +157,7 @@ for i in tqdm(range(N)): # for i in range(0,N):
     Boost_algorithm.fit(X_train, y_train)
     Boost_yhat = Boost_algorithm.predict(X_test)
     Boost_score += accuracy_score(y_test, Boost_yhat)
+    totalPredictionsBoost = np.concatenate((totalPredictionsBoost, Boost_yhat))
     
     
     # Support Vector Machines
@@ -146,7 +165,10 @@ for i in tqdm(range(N)): # for i in range(0,N):
     SV_algorithm.fit(X_train, y_train)
     SV_yhat = SV_algorithm.predict(X_test)
     SV_score += accuracy_score(y_test, SV_yhat)
+    totalPredictionsSV = np.concatenate((totalPredictionsSV, SV_yhat))
     
+    
+    totalTest = np.concatenate((totalTest,y_test))
 
 
 
@@ -164,4 +186,20 @@ print('Boosting', '\t', '\t', '\t', 100*Boost_score/N)
 print('Support Vector Machine', '\t', '\t', 100*SV_score/N)
 
 # confusion matrix
+KNN = confusion_matrix(totalTest, totalPredictionsKNN)
+np.savetxt('confusionKNN.csv', KNN , delimiter=',')
+LR = confusion_matrix(totalTest, totalPredictionsLR)
+np.savetxt('confusionLR.csv', LR , delimiter=',')
+LDA = confusion_matrix(totalTest, totalPredictionsLDA)
+np.savetxt('confusionLDA.csv', LDA , delimiter=',')
+Tree = confusion_matrix(totalTest, totalPredictionsTree)
+np.savetxt('confusionTree.csv', Tree , delimiter=',')
+Bag = confusion_matrix(totalTest, totalPredictionsBag)
+np.savetxt('confusionBag.csv', Bag , delimiter=',')
+RF = confusion_matrix(totalTest, totalPredictionsRF)
+np.savetxt('confusionRF.csv', RF , delimiter=',')
+Boost = confusion_matrix(totalTest, totalPredictionsBoost)
+np.savetxt('confusionBoost.csv', Boost , delimiter=',')
+SV = confusion_matrix(totalTest, totalPredictionsSV)
+np.savetxt('confusionSV.csv', SV , delimiter=',')
 
